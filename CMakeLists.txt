@@ -1,25 +1,38 @@
 cmake_minimum_required(VERSION 3.14.0)
-project(cuid2)
+project(cuid2 VERSION 0.1.0 DESCRIPTION "")
+
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_BUILD_TYPE "Debug")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/target/bin)
 
-include(FetchContent)
-Set(FETCHCONTENT_QUIET false)
 
-# GoogleTest
-FetchContent_Declare(
-    googletest
-    GIT_REPOSITORY https://github.com/google/googletest.git
-    GIT_TAG        v1.16.0
+# Dependencies
+include(cmake/macros.cmake)
+include(cmake/dependencies.cmake)
+
+
+# Define Library
+set(CUID_SRC ${PROJECT_SOURCE_DIR}/src)
+
+addLibrary(cuid2 
+    VERSION     ${PROJECT_VERSION}
+    SOVERSION   ${PROJECT_VERSION_MAJOR}
+    INCLUDE     ${PROJECT_SOURCE_DIR}/include
+
+    SOURCES     
+        ${CUID_SRC}/cuid2.cc
+        ${CUID_SRC}/utils.cc
 )
-# For Windows: Prevent overriding the parent project's compiler/linker settings
-set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-FetchContent_MakeAvailable(googletest)
 
-# Source
-add_subdirectory(test)
+
+# Test Suites
+enable_testing()
+set(CUID2_TEST ${PROJECT_SOURCE_DIR}/test)
+
+addExecutable(utils ${CUID2_TEST}/utils.cc
+    cuid2
+    GTest::gtest_main
+)
