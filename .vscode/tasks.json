@@ -1,0 +1,37 @@
+{
+    "version": "2.0.0",
+    "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "panel": "shared",
+        "showReuseMessage": false,
+        "clear": true
+    },
+    "tasks": [
+        {
+            "label": "cmake:init",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--no-warn-unused-cli", "-S.", "-B./target/cmake", "-G", "\"Unix Makefiles\""
+            ],
+        },
+        {
+            "label": "cpp:build",
+            "type": "shell",
+            "dependsOn": ["libcheck"],
+            "command": "cmake",
+            "args": [
+                "--build", "./target/cmake", "--", "-j3"
+            ]
+        },
+        {
+            "label": "cpp:test",
+            "type": "shell",
+            "dependsOn": [
+                "cpp:build"
+            ],
+            "command": "./target/bin/cuidtest",
+        },
+    ]
+}
