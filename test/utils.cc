@@ -4,19 +4,11 @@
 
 
 
-BIGNUM* toBignum(int value) {
-    BIGNUM* bignum = BN_new();
-    BN_set_word(bignum, abs(value));
-
-    return bignum;
-}
-
-
 TEST(BASE36, AssertEncoding) {
-    EXPECT_EQ(cuid2::base36Encode(toBignum(83738)),       "1sm2");
-    EXPECT_EQ(cuid2::base36Encode(toBignum(87236492)),    "1fxs3w");
-    EXPECT_EQ(cuid2::base36Encode(toBignum(45678323)),    "r71mb");
-    EXPECT_EQ(cuid2::base36Encode(toBignum(74395)),       "1lej");
+    EXPECT_EQ(cuid2::base36Encode(cuid2::toBignum(83738)),       "1sm2");
+    EXPECT_EQ(cuid2::base36Encode(cuid2::toBignum(87236492)),    "1fxs3w");
+    EXPECT_EQ(cuid2::base36Encode(cuid2::toBignum(45678323)),    "r71mb");
+    EXPECT_EQ(cuid2::base36Encode(cuid2::toBignum(74395)),       "1lej");
 }
 
 

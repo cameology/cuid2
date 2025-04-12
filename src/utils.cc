@@ -1,9 +1,9 @@
 #include "cuid2/utils.h"
-#include "cuid2/contants.h"
 
 #include <random>
 #include <cmath>
 #include <vector>
+#include <chrono>
 #include <stdexcept>
 
 #include <unistd.h>
@@ -12,6 +12,9 @@
 
 #include <openssl/evp.h>
 #include <openssl/sha.h>
+
+#include "cuid2/contants.h"
+
 
 
 std::mt19937& cuid2::random() {
@@ -34,7 +37,15 @@ int cuid2::counter() {
 }
 
 
-std::string cuid2::fingerprint(std::string input = "") {
+int cuid2::epochInNano() {
+    auto now        = std::chrono::system_clock::now();
+    auto duration   = now.time_since_epoch();
+
+    return std::chrono::duration_cast<std::chrono::nanoseconds>(duration).count();
+}
+
+
+std::string cuid2::fingerprint(std::string input) {
     std::string fingerprint = input;
 
     if (input == "") {
@@ -148,4 +159,12 @@ std::vector<unsigned char> cuid2::sha512(const std::string& input) {
 
     hash.resize(len);
     return hash;
+}
+
+
+BIGNUM* cuid2::toBignum(int value) {
+    BIGNUM* bignum = BN_new();
+    BN_set_word(bignum, abs(value));
+
+    return bignum;
 }
