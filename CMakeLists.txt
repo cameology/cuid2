@@ -22,6 +22,10 @@ addLibrary(cuid2
     SOVERSION   ${PROJECT_VERSION_MAJOR}
     INCLUDE     ${PROJECT_SOURCE_DIR}/include
 
+    LINK_LIBRARIES
+        OpenSSL::SSL
+        OpenSSL::Crypto
+
     SOURCES     
         ${CUID_SRC}/cuid2.cc
         ${CUID_SRC}/utils.cc

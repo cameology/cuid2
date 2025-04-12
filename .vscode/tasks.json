@@ -5,7 +5,8 @@
         "reveal": "always",
         "panel": "shared",
         "showReuseMessage": false,
-        "clear": true
+        "clear": true,
+        "close": false,
     },
     "tasks": [
         {
@@ -31,7 +32,7 @@
             "dependsOn": [
                 "cpp:build"
             ],
-            "command": "./target/bin/cuidtest",
+            "command": "./target/bin/utils",
         },
     ]
 }
