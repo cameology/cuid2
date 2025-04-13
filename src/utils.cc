@@ -1,14 +1,10 @@
 #include "cuid2/utils.h"
 
 #include <random>
-#include <cmath>
-#include <vector>
 #include <chrono>
 #include <stdexcept>
-
 #include <unistd.h>
 #include <sys/utsname.h>
-#include <cstdlib>
 
 #include <openssl/evp.h>
 #include <openssl/sha.h>
@@ -33,7 +29,7 @@ char cuid2::alpha() {
 
 
 int cuid2::counter() {
-    return std::floor(cuid2::random()() * cuid2::INITIAL_COUNT_MAX);
+    return std::floor(cuid2::random()() * cuid2::INITIAL_COUNT_MAX) + 1;
 }
 
 
@@ -75,17 +71,22 @@ std::string cuid2::fingerprint(std::string input) {
 }
 
 
-std::string cuid2::entropy(int length = 4) {
+std::string cuid2::entropy(int length) {
     std::string entropy = "";
+    BIGNUM* rand        = BN_new();
+    std::uniform_int_distribution distribute(0, 25);
 
     if (length < 1) {
         throw std::runtime_error("Cannot create entropy without a length >= 1");
     }
 
+    BN_set_word(rand,  distribute(cuid2::random()));
+
     while (entropy.length() < length) {
-        entropy += std::floor(cuid2::random()() * 36);
+        entropy += cuid2::base36Encode(rand);
     }
     
+    BN_free(rand);
     return entropy;
 }
 
@@ -104,8 +105,8 @@ std::string cuid2::hash(std::string input) {
 
 
 std::string cuid2::base36Encode(const BIGNUM* input) {
-    if (BN_is_negative(input) || BN_is_zero(input)) {
-        throw std::runtime_error("Cannot encode negative integers");
+    if (BN_is_zero(input)) {
+        return "0";
     }
 
     std::string encoded    = "";
@@ -117,6 +118,11 @@ std::string cuid2::base36Encode(const BIGNUM* input) {
     BIGNUM* number      = BN_dup(input);
     BIGNUM* quotient    = BN_new();
     BIGNUM* remainder   = BN_new();
+
+    // Make number always positive
+    if (BN_is_negative(number)) {
+        BN_set_negative(number, 0);
+    }
 
     // Fill them value
     BN_set_word(length, alphaNum.size());
@@ -159,12 +165,4 @@ std::vector<unsigned char> cuid2::sha512(const std::string& input) {
 
     hash.resize(len);
     return hash;
-}
-
-
-BIGNUM* cuid2::toBignum(int value) {
-    BIGNUM* bignum = BN_new();
-    BN_set_word(bignum, abs(value));
-
-    return bignum;
 }
