@@ -16,7 +16,7 @@
 
 
 
-std::mt19937& cuid2::random() {
+std::mt19937& randInt() {
     static auto rd  = std::random_device();
     static auto gen = std::mt19937(rd());
 
@@ -27,12 +27,12 @@ std::mt19937& cuid2::random() {
 char cuid2::alpha() {
     auto distribute = std::uniform_int_distribution(0, 25);
 
-    return 'a' + distribute(cuid2::random());
+    return 'a' + distribute(randInt());
 }
 
 
 int cuid2::counter() {
-    return std::floor(cuid2::random()() * cuid2::INITIAL_COUNT_MAX) + 1;
+    return std::floor(randInt()() * cuid2::INITIAL_COUNT_MAX) + 1;
 }
 
 
@@ -86,7 +86,7 @@ std::string cuid2::entropy(const int& length) {
 
     while (entropy.length() < length) {
         entropy += cuid2::base36Encode(
-            std::to_string(distribute(cuid2::random()))
+            std::to_string(distribute(randInt()))
         );
     }
 
