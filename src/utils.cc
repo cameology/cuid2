@@ -1,9 +1,12 @@
 #include "cuid2/utils.h"
 
+#include <string>
 #include <random>
+#include <vector>
 #include <chrono>
 #include <stdexcept>
 #include <unistd.h>
+
 #include <sys/utsname.h>
 
 #include <openssl/evp.h>
@@ -14,15 +17,15 @@
 
 
 std::mt19937& cuid2::random() {
-    static std::random_device rd;
-    static std::mt19937 gen(rd());
+    static auto rd  = std::random_device();
+    static auto gen = std::mt19937(rd());
 
     return gen;
 }
 
 
 char cuid2::alpha() {
-    std::uniform_int_distribution distribute(0, 25);
+    auto distribute = std::uniform_int_distribution(0, 25);
 
     return 'a' + distribute(cuid2::random());
 }
@@ -42,7 +45,7 @@ int cuid2::epochInNano() {
 
 
 std::string cuid2::fingerprint(std::string input) {
-    std::string fingerprint = input;
+    auto fingerprint = input;
 
     if (input == "") {
         // Process ID
@@ -72,9 +75,11 @@ std::string cuid2::fingerprint(std::string input) {
 
 
 std::string cuid2::entropy(int length) {
-    std::string entropy = "";
-    BIGNUM* rand        = BN_new();
-    std::uniform_int_distribution distribute(0, 25);
+    using namespace std::string_literals;
+
+    auto entropy    = ""s;
+    auto rand       = BN_new();
+    auto distribute = std::uniform_int_distribution(0, 25);
 
     if (length < 1) {
         throw std::runtime_error("Cannot create entropy without a length >= 1");
@@ -86,7 +91,9 @@ std::string cuid2::entropy(int length) {
         entropy += cuid2::base36Encode(rand);
     }
     
+    // Free memory
     BN_free(rand);
+
     return entropy;
 }
 
@@ -105,19 +112,21 @@ std::string cuid2::hash(std::string input) {
 
 
 std::string cuid2::base36Encode(const BIGNUM* input) {
+    using namespace std::string_literals;
+
     if (BN_is_zero(input)) {
         return "0";
     }
 
-    std::string encoded    = "";
-    std::string alphaNum   = "0123456789abcdefghijklmnopqrstuvwxyz";
+    auto encoded    = ""s;
+    auto alphaNum   = "0123456789abcdefghijklmnopqrstuvwxyz"s;
 
     // BIGNUM Vars
-    BN_CTX* ctx         = BN_CTX_new();
-    BIGNUM* length      = BN_new();
-    BIGNUM* number      = BN_dup(input);
-    BIGNUM* quotient    = BN_new();
-    BIGNUM* remainder   = BN_new();
+    auto ctx         = BN_CTX_new();
+    auto length      = BN_new();
+    auto number      = BN_dup(input);
+    auto quotient    = BN_new();
+    auto remainder   = BN_new();
 
     // Make number always positive
     if (BN_is_negative(number)) {
@@ -155,14 +164,17 @@ std::string cuid2::base36Encode(const BIGNUM* input) {
 
 
 std::vector<unsigned char> cuid2::sha512(const std::string& input) {
-    std::vector<unsigned char> hash(EVP_MAX_MD_SIZE);
-    unsigned int len = 0;
+    auto hash    = std::vector<unsigned char>(EVP_MAX_MD_SIZE);
+    auto len     = (unsigned int) 0;
+    auto context = EVP_MD_CTX_new();
 
-    EVP_MD_CTX* context = EVP_MD_CTX_new();
     EVP_DigestInit_ex(context, EVP_sha3_512(), nullptr);
     EVP_DigestUpdate(context, input.c_str(), input.size());
     EVP_DigestFinal_ex(context, hash.data(), &len);
 
+    // Free memory
+    EVP_MD_CTX_free(context);
+    
     hash.resize(len);
     return hash;
 }

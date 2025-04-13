@@ -9,10 +9,11 @@
 
 
 std::string cuid2::createId() {
-    std::string cuid2    = "";
+    using namespace std::string_literals;
 
-    BIGNUM* epoch   = BN_new();
-    BIGNUM* counter = BN_new();
+    auto cuid2      = ""s;
+    auto epoch      = BN_new();
+    auto counter    = BN_new();
 
     BN_set_word(epoch, cuid2::epochInNano());
     BN_set_word(counter, cuid2::counter());
@@ -25,6 +26,7 @@ std::string cuid2::createId() {
             + cuid2::fingerprint()                      // fingerprint
         );
 
+    // Free memories
     BN_free(epoch);
     BN_free(counter);
 
