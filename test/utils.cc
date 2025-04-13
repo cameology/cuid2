@@ -9,14 +9,6 @@
 
 
 
-BIGNUM* toBignum(std::string value) {
-    BIGNUM* bignum = BN_new();
-    BN_dec2bn(&bignum, value.c_str());
-
-    return bignum;
-}
-
-
 TEST(Alpha, AssertLowercase) {
     EXPECT_TRUE(islower(cuid2::alpha()));
     EXPECT_TRUE(islower(cuid2::alpha()));
@@ -28,40 +20,40 @@ TEST(Alpha, AssertLowercase) {
 
 
 TEST(Base36, AssertEncoding) {
-    EXPECT_EQ(cuid2::base36Encode(toBignum("83738")),        "1sm2");
-    EXPECT_EQ(cuid2::base36Encode(toBignum("87236492")),     "1fxs3w");
-    EXPECT_EQ(cuid2::base36Encode(toBignum("45678323")),     "r71mb");
-    EXPECT_EQ(cuid2::base36Encode(toBignum("74395")),        "1lej");
-    EXPECT_EQ(cuid2::base36Encode(toBignum("982451653")),    "g8xcjp");
-    EXPECT_EQ(cuid2::base36Encode(toBignum("999999999")),    "gjdgxr");
-    EXPECT_EQ(cuid2::base36Encode(toBignum("28374982374892374982374982374972398472")),    
+    EXPECT_EQ(cuid2::base36Encode("83738"),                         "1sm2");
+    EXPECT_EQ(cuid2::base36Encode("87236492"),                      "1fxs3w");
+    EXPECT_EQ(cuid2::base36Encode("45678323"),                      "r71mb");
+    EXPECT_EQ(cuid2::base36Encode("74395"),                         "1lej");
+    EXPECT_EQ(cuid2::base36Encode("982451653"),                     "g8xcjp");
+    EXPECT_EQ(cuid2::base36Encode("999999999"),                     "gjdgxr");
+    EXPECT_EQ(cuid2::base36Encode("28374982374892374982374982374972398472"),    
                                                                     "19hvh60691uggc0yf8hr0qc20");
-    EXPECT_EQ(cuid2::base36Encode(toBignum("100000000000000000000000000000000000000000000000000")),
+    EXPECT_EQ(cuid2::base36Encode("100000000000000000000000000000000000000000000000000"),
                                                                     "1ku3a4pjfxx2nd2gl07gtqboljenwn75s");
 }
 
 
 TEST(Base36, AssertZero) {
-    EXPECT_EQ(cuid2::base36Encode(toBignum("0")),            "0");
+    EXPECT_EQ(cuid2::base36Encode("0"),                             "0");
 }
 
 
 TEST(Base36, AssertNegative) {
-    EXPECT_EQ(cuid2::base36Encode(toBignum("-83738")),       "1sm2");
-    EXPECT_EQ(cuid2::base36Encode(toBignum("-87236492")),    "1fxs3w");
-    EXPECT_EQ(cuid2::base36Encode(toBignum("-45678323")),    "r71mb");
-    EXPECT_EQ(cuid2::base36Encode(toBignum("-74395")),       "1lej");
-    EXPECT_EQ(cuid2::base36Encode(toBignum("-982451653")),   "g8xcjp");
-    EXPECT_EQ(cuid2::base36Encode(toBignum("-999999999")),   "gjdgxr");
-    EXPECT_EQ(cuid2::base36Encode(toBignum("-28374982374892374982374982374972398472")),    
+    EXPECT_EQ(cuid2::base36Encode("-83738"),                        "1sm2");
+    EXPECT_EQ(cuid2::base36Encode("-87236492"),                     "1fxs3w");
+    EXPECT_EQ(cuid2::base36Encode("-45678323"),                     "r71mb");
+    EXPECT_EQ(cuid2::base36Encode("-74395"),                        "1lej");
+    EXPECT_EQ(cuid2::base36Encode("-982451653"),                    "g8xcjp");
+    EXPECT_EQ(cuid2::base36Encode("-999999999"),                    "gjdgxr");
+    EXPECT_EQ(cuid2::base36Encode("-28374982374892374982374982374972398472"),    
                                                                     "19hvh60691uggc0yf8hr0qc20");
-    EXPECT_EQ(cuid2::base36Encode(toBignum("-100000000000000000000000000000000000000000000000000")),
+    EXPECT_EQ(cuid2::base36Encode("-100000000000000000000000000000000000000000000000000"),
                                                                     "1ku3a4pjfxx2nd2gl07gtqboljenwn75s");
 }
 
 
 TEST(Base36, AssertLowerAlphanumeric) {
-    auto encoded = cuid2::base36Encode(toBignum("8373878367272"));
+    auto encoded = cuid2::base36Encode("8373878367272");
 
     for (const char ch: encoded) {
         EXPECT_TRUE(islower(ch) || isdigit(ch));
@@ -70,9 +62,9 @@ TEST(Base36, AssertLowerAlphanumeric) {
 
 
 TEST(Base36, AssertBigassNumber) {
-    BIGNUM* big     = BN_new();
-    BIGNUM* tenK    = BN_new();
-    BN_CTX* ctx = BN_CTX_new();
+    auto ctx    = BN_CTX_new();
+    auto big    = BN_new();
+    auto tenK   = BN_new();
 
     BN_set_word(big, 2);
     BN_set_word(tenK, 10000);
@@ -105,11 +97,13 @@ TEST(Base36, AssertBigassNumber) {
         expected += "x89ems9fga26i7t7zl5njmbqtp2jt9ommmhiz3ty7izh9gk5dxr26n9bz6j3swbu980hfd9v0vbdrn7";
         expected += "2ra3eiawckwkvhmdgfpi12cjamr0jf22jf268sg";
     
-    EXPECT_EQ(cuid2::base36Encode(big), expected),
+    auto bigStr = BN_bn2dec(big);
+    EXPECT_EQ(cuid2::base36Encode(std::string(bigStr)), expected),
         
     BN_free(big);
     BN_free(tenK);
     BN_CTX_free(ctx);
+    OPENSSL_free(bigStr);
 }
 
 
@@ -150,7 +144,9 @@ TEST(Hash, AssertBigassString) {
 
 
 TEST(Entropy, AssertValidEntropy) {
-    std::string entropy = "";
+    using namespace std::string_literals;
+
+    auto entropy = ""s;
 
     entropy = cuid2::entropy();
     EXPECT_EQ(entropy.length(), 4);
@@ -163,4 +159,10 @@ TEST(Entropy, AssertValidEntropy) {
     for (const char ch: entropy) {
         EXPECT_TRUE(islower(ch) || isdigit(ch));
     }
+}
+
+
+TEST(Entropy, AssertInvalidLength) {
+    EXPECT_THROW(cuid2::entropy(0), std::runtime_error);
+    EXPECT_THROW(cuid2::entropy(-1), std::runtime_error);
 }

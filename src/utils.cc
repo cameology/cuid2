@@ -44,7 +44,7 @@ int cuid2::epochInNano() {
 }
 
 
-std::string cuid2::fingerprint(std::string input) {
+std::string cuid2::fingerprint(const std::string& input) {
     auto fingerprint = input;
 
     if (input == "") {
@@ -74,49 +74,43 @@ std::string cuid2::fingerprint(std::string input) {
 }
 
 
-std::string cuid2::entropy(int length) {
+std::string cuid2::entropy(const int& length) {
     using namespace std::string_literals;
 
     auto entropy    = ""s;
-    auto rand       = BN_new();
     auto distribute = std::uniform_int_distribution(0, 25);
 
     if (length < 1) {
         throw std::runtime_error("Cannot create entropy without a length >= 1");
     }
 
-    BN_set_word(rand,  distribute(cuid2::random()));
-
     while (entropy.length() < length) {
-        entropy += cuid2::base36Encode(rand);
+        entropy += cuid2::base36Encode(
+            std::to_string(distribute(cuid2::random()))
+        );
     }
-    
-    // Free memory
-    BN_free(rand);
 
     return entropy;
 }
 
 
-std::string cuid2::hash(std::string input) {
-    auto hash       = cuid2::sha512(input);
-    auto hashedNum  = BN_bin2bn(hash.data(), hash.size(), nullptr);
+std::string cuid2::hash(const std::string& input) {
+    auto hash   = cuid2::sha512(input);
+    auto bin    = BN_bin2bn(hash.data(), hash.size(), nullptr);
+    auto dec    = BN_bn2dec(bin);
 
-    if (!hashedNum) {
-        throw std::runtime_error("Failed to convert hash to integer");
-    }
+    auto base36 = cuid2::base36Encode(std::string(dec));
 
-    auto base36 = cuid2::base36Encode(hashedNum);
+    // Free memories
+    BN_free(bin);
+    OPENSSL_free(dec);
+
     return base36.substr(1, base36.size() - 1);
 }
 
 
-std::string cuid2::base36Encode(const BIGNUM* input) {
+std::string cuid2::base36Encode(const std::string& input) {
     using namespace std::string_literals;
-
-    if (BN_is_zero(input)) {
-        return "0";
-    }
 
     auto encoded    = ""s;
     auto alphaNum   = "0123456789abcdefghijklmnopqrstuvwxyz"s;
@@ -124,17 +118,22 @@ std::string cuid2::base36Encode(const BIGNUM* input) {
     // BIGNUM Vars
     auto ctx         = BN_CTX_new();
     auto length      = BN_new();
-    auto number      = BN_dup(input);
+    auto number      = BN_new();
     auto quotient    = BN_new();
     auto remainder   = BN_new();
+
+    // Fill them value
+    BN_dec2bn(&number, input.c_str());
+    BN_set_word(length, alphaNum.size());
+
+    if (BN_is_zero(number)) {
+        return "0";
+    }
 
     // Make number always positive
     if (BN_is_negative(number)) {
         BN_set_negative(number, 0);
     }
-
-    // Fill them value
-    BN_set_word(length, alphaNum.size());
 
     while (!BN_is_zero(number)) {
         BN_div(quotient, remainder, number, length, ctx);

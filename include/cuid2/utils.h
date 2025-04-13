@@ -14,10 +14,10 @@ namespace cuid2 {
     int                         counter();
     int                         epochInNano();
     std::mt19937&               random();
-    std::string                 fingerprint(std::string input = "");
-    std::string                 entropy(int length = 4);
-    std::string                 hash(std::string input);
-    std::string                 base36Encode(const BIGNUM* input);
+    std::string                 fingerprint(const std::string& input = "");
+    std::string                 entropy(const int& length = 4);
+    std::string                 hash(const std::string& input);
+    std::string                 base36Encode(const std::string& input);
     std::vector<unsigned char>  sha512(const std::string& input);
 }
 
