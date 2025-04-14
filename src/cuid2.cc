@@ -12,11 +12,8 @@ std::string cuid2::createId() {
     using namespace std::string_literals;
 
     auto cuid2      = ""s;
-    auto epoch      = BN_new();
-    auto counter    = BN_new();
-
-    BN_set_word(epoch, cuid2::epochInNano());
-    BN_set_word(counter, cuid2::counter());
+    auto epoch      = std::to_string(cuid2::epochInNano());
+    auto counter    = std::to_string(cuid2::counter());
 
     cuid2 += cuid2::alpha();
     cuid2 += cuid2::hash(""
@@ -25,10 +22,6 @@ std::string cuid2::createId() {
             + cuid2::base36Encode(counter)              // base36 counter
             + cuid2::fingerprint()                      // fingerprint
         );
-
-    // Free memories
-    BN_free(epoch);
-    BN_free(counter);
 
     return cuid2.substr(1, cuid2::DEFAULT_LENGTH);
 }
