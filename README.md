@@ -48,9 +48,7 @@ FetchContent_MakeAvailable(cuid2)
 ## Usage
 ```c++
 #include <iostream>
-
 #include <cuid2/cuid2.h>
-
 
 int main() {
     auto id     = cuid2::createId();
