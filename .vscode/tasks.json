@@ -14,6 +14,7 @@
             "type": "shell",
             "command": "cmake",
             "args": [
+                "-DENABLE_TESTS=TRUE",
                 "--no-warn-unused-cli", "-S.", "-B./target/cmake", "-G", "\"Unix Makefiles\""
             ],
         },

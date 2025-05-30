@@ -33,15 +33,17 @@ addLibrary(cuid2
 
 
 # Test Suites
-enable_testing()
-set(CUID2_TEST ${PROJECT_SOURCE_DIR}/test)
+if(ENABLE_TESTS)
+    enable_testing()
+    set(CUID2_TEST ${PROJECT_SOURCE_DIR}/test)
 
-addExecutable(cuid2test ${CUID2_TEST}/cuid2.cc
-    cuid2
-    GTest::gtest_main
-)
+    addExecutable(cuid2test ${CUID2_TEST}/cuid2.cc
+        cuid2
+        GTest::gtest_main
+    )
 
-addExecutable(utils ${CUID2_TEST}/utils.cc
-    cuid2
-    GTest::gtest_main
-)
+    addExecutable(utils ${CUID2_TEST}/utils.cc
+        cuid2
+        GTest::gtest_main
+    )
+endif()
