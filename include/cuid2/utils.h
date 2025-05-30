@@ -8,6 +8,8 @@
 
 #include <openssl/evp.h>
 
+#include <cuid2/contants.h>
+
 
 namespace cuid2 {
     /**
@@ -34,7 +36,7 @@ namespace cuid2 {
      *  @return `std::string` The hashed value of the input combined with
      *              PID, System Info, and Environment Variables
      */
-    std::string fingerprint(const std::string& input = "");
+    std::string fingerprint(const std::string& input = "", const int& length = cuid2::BIG_LENGTH);
     
     /**
      *  @brief Creates a random string of specified length using a base36 encoding

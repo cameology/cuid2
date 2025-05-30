@@ -5,6 +5,7 @@
 #include <stdexcept>
 #include <bits/stdc++.h>
 
+#include <cuid2/contants.h>
 #include <cuid2/utils.h>
 
 
@@ -165,4 +166,16 @@ TEST(Entropy, AssertValidEntropy) {
 TEST(Entropy, AssertInvalidLength) {
     EXPECT_THROW(cuid2::entropy(0), std::runtime_error);
     EXPECT_THROW(cuid2::entropy(-1), std::runtime_error);
+}
+
+
+TEST(FingerPrint, AssertFingerPrintLength) {
+    EXPECT_EQ(cuid2::fingerprint().length(),                        cuid2::BIG_LENGTH);
+    EXPECT_EQ(cuid2::fingerprint("test_data").length(),             cuid2::BIG_LENGTH);
+    
+    EXPECT_EQ(cuid2::fingerprint("", 4).length(),                   4);
+    EXPECT_EQ(cuid2::fingerprint("test_data", 4).length(),          4);
+
+    EXPECT_EQ(cuid2::fingerprint("", 12).length(),                  12);
+    EXPECT_EQ(cuid2::fingerprint("test_data", 12).length(),         12);
 }

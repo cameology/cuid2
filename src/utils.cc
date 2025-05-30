@@ -44,7 +44,7 @@ int cuid2::epochInNano() {
 }
 
 
-std::string cuid2::fingerprint(const std::string& input) {
+std::string cuid2::fingerprint(const std::string& input, const int& length) {
     auto fingerprint = input;
 
     if (input == "") {
@@ -69,8 +69,8 @@ std::string cuid2::fingerprint(const std::string& input) {
         }
     }
 
-    fingerprint = cuid2::hash(fingerprint + cuid2::entropy(cuid2::BIG_LENGTH));
-    return fingerprint.substr(0, cuid2::BIG_LENGTH);
+    fingerprint = cuid2::hash(fingerprint + cuid2::entropy(length));
+    return fingerprint.substr(0, length);
 }
 
 
