@@ -4,9 +4,11 @@
 
 #include <string>
 
+#include "cuid2/constant.h"
+
 
 namespace cuid2 {
-    std::string createId();
+    std::string createId(const int& length = cuid2::DEFAULT_LENGTH);
 }
 
 #endif

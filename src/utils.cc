@@ -12,7 +12,7 @@
 #include <openssl/evp.h>
 #include <openssl/sha.h>
 
-#include "cuid2/contants.h"
+#include "cuid2/constant.h"
 
 
 

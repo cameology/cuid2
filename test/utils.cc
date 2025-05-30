@@ -5,7 +5,7 @@
 #include <stdexcept>
 #include <bits/stdc++.h>
 
-#include <cuid2/contants.h>
+#include <cuid2/constant.h>
 #include <cuid2/utils.h>
 
 

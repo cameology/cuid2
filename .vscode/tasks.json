@@ -32,7 +32,7 @@
             "dependsOn": [
                 "cpp:build"
             ],
-            "command": "./target/bin/utils",
+            "command": "./target/bin/utils && ./target/bin/cuid2test",
         },
     ]
 }
